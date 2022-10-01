@@ -8,5 +8,4 @@ import (
 func main() {
 	database.ConnectDatabase()
 	routes.HandleRequests()
-
 }

@@ -31,6 +31,16 @@ func GetStudentById(c *gin.Context) {
 	c.JSON(http.StatusOK, student)
 }
 
+func WriteMessage(c *gin.Context) {
+	name := c.Params.ByName("name")
+
+	responseMessage := "Olá " + name + ", seja bem-vindo ao curso de Go"
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": responseMessage,
+	})
+}
+
 func CreateStudent(c *gin.Context) {
 	var student models.Student
 
@@ -40,6 +50,14 @@ func CreateStudent(c *gin.Context) {
 		})
 		return
 	}
+
+	if err := models.ValidateStudentData(&student); err != nil {
+		c.JSON(http.StatusBadGateway, gin.H{
+			"Error": err.Error(),
+		})
+		return
+	}
+
 	database.DB.Create(&student)
 	c.JSON(http.StatusOK, student)
 }
@@ -60,6 +78,13 @@ func UpdateStudent(c *gin.Context) {
 
 	if err := c.ShouldBindJSON(&student); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
+			"Error": err.Error(),
+		})
+		return
+	}
+
+	if err := models.ValidateStudentData(&student); err != nil {
+		c.JSON(http.StatusBadGateway, gin.H{
 			"Error": err.Error(),
 		})
 		return
